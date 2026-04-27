@@ -1,0 +1,41 @@
+services:
+  traefik:
+    image: traefik:v3
+    command:
+      - --providers.docker=true
+      - --entrypoints.web.address=:80
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  web:
+    image: ghcr.io/example/web:latest
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.web.rule: Host(`app.example.test`)
+      traefik.http.services.web.loadbalancer.server.port: "3000"
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "0.0.0.0:6379:6379"
+
+  admin:
+    image: adminer:latest
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  worker:
+    image: ghcr.io/example/worker:latest
+    depends_on:
+      - redis
