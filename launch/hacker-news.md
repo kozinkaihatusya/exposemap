@@ -18,4 +18,6 @@ The goal is not to prove real internet exposure. It does not perform network sca
 
 The MVP currently handles common port mappings, localhost bindings, Traefik-style labels, likely reverse proxy services, and risky directly exposed database/admin ports.
 
+Longer term, I am also collecting interest for scheduled checks, history, diffs, and alerts, but the current project is just the free local CLI.
+
 Feedback, edge cases, and sanitized Compose examples are welcome.
