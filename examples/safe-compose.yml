@@ -1,0 +1,26 @@
+services:
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+
+  app:
+    image: ghcr.io/example/app:latest
+    labels:
+      caddy.host: app.example.test
+      caddy.reverse_proxy: "{{upstreams 3000}}"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  redis:
+    image: redis:7
+    expose:
+      - "6379"
