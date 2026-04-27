@@ -1,0 +1,165 @@
+import type { ExposureClassification, ExposureReport, Finding, PortMapping, ServiceAnalysis } from "../types.js";
+import { TOOL_NAME, getToolVersion } from "../version.js";
+
+interface JsonSummary {
+  totalServices: number;
+  internal: number;
+  localhostOnly: number;
+  directlyExposed: number;
+  reverseProxyExposed: number;
+  unknown: number;
+  totalFindings: number;
+  high: number;
+  medium: number;
+  low: number;
+}
+
+interface JsonService {
+  name: string;
+  classification: ExposureClassification;
+  image?: string;
+  ports: JsonPort[];
+  labels: Record<string, string>;
+  evidence: string[];
+  notes: string[];
+}
+
+interface JsonPort {
+  evidence: string;
+  hostIp?: string;
+  published?: string;
+  target?: string;
+  protocol?: string;
+  isLocalhostBound: boolean;
+  isBroadlyBound: boolean;
+}
+
+interface JsonExposureMapEntry {
+  service: string;
+  classification: ExposureClassification;
+  entrypoints: string[];
+  evidence: string[];
+}
+
+export interface JsonExposureReport {
+  tool: {
+    name: string;
+    version: string;
+  };
+  scannedFilePath: string;
+  generatedAt: string;
+  summary: JsonSummary;
+  services: JsonService[];
+  exposureMap: JsonExposureMapEntry[];
+  findings: Finding[];
+  mermaid: string;
+}
+
+export function buildJsonReport(report: ExposureReport): JsonExposureReport {
+  return {
+    tool: {
+      name: TOOL_NAME,
+      version: getToolVersion()
+    },
+    scannedFilePath: report.filePath,
+    generatedAt: report.generatedAt,
+    summary: buildSummary(report),
+    services: report.services.map(buildService),
+    exposureMap: report.services.map(buildExposureMapEntry),
+    findings: report.findings,
+    mermaid: report.mermaid
+  };
+}
+
+export function renderJsonReport(report: ExposureReport): string {
+  return `${JSON.stringify(buildJsonReport(report), null, 2)}\n`;
+}
+
+function buildSummary(report: ExposureReport): JsonSummary {
+  return {
+    totalServices: report.services.length,
+    internal: countServices(report, "internal"),
+    localhostOnly: countServices(report, "localhost-only"),
+    directlyExposed: countServices(report, "directly exposed"),
+    reverseProxyExposed: countServices(report, "reverse-proxy exposed"),
+    unknown: countServices(report, "unknown"),
+    totalFindings: report.findings.length,
+    high: countFindings(report, "high"),
+    medium: countFindings(report, "medium"),
+    low: countFindings(report, "low")
+  };
+}
+
+function buildService(service: ServiceAnalysis): JsonService {
+  return {
+    name: service.service.name,
+    classification: service.classification,
+    image: service.service.image,
+    ports: service.ports.map(buildPort),
+    labels: service.service.labels,
+    evidence: buildEvidence(service),
+    notes: service.notes
+  };
+}
+
+function buildPort(port: PortMapping): JsonPort {
+  return {
+    evidence: port.evidence,
+    hostIp: port.hostIp,
+    published: port.published,
+    target: port.target,
+    protocol: port.protocol,
+    isLocalhostBound: port.isLocalhostBound,
+    isBroadlyBound: port.isBroadlyBound
+  };
+}
+
+function buildExposureMapEntry(service: ServiceAnalysis): JsonExposureMapEntry {
+  return {
+    service: service.service.name,
+    classification: service.classification,
+    entrypoints: getEntrypoints(service),
+    evidence: buildEvidence(service)
+  };
+}
+
+function buildEvidence(service: ServiceAnalysis): string[] {
+  const evidence = service.ports.map((port) => port.evidence);
+
+  if (service.isReverseProxy) {
+    evidence.push("likely reverse proxy service");
+  }
+
+  if (service.hasReverseProxyRouting) {
+    evidence.push("reverse proxy routing labels/env detected");
+  }
+
+  if (service.ports.length === 0) {
+    evidence.push("no Compose ports detected");
+  }
+
+  return evidence;
+}
+
+function getEntrypoints(service: ServiceAnalysis): string[] {
+  switch (service.classification) {
+    case "directly exposed":
+      return ["internet"];
+    case "localhost-only":
+      return ["localhost"];
+    case "reverse-proxy exposed":
+      return ["reverse-proxy"];
+    case "internal":
+      return ["internal-network"];
+    case "unknown":
+      return ["unknown"];
+  }
+}
+
+function countServices(report: ExposureReport, classification: ExposureClassification): number {
+  return report.services.filter((service) => service.classification === classification).length;
+}
+
+function countFindings(report: ExposureReport, severity: Finding["severity"]): number {
+  return report.findings.filter((finding) => finding.severity === severity).length;
+}

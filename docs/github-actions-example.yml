@@ -1,0 +1,47 @@
+name: ExposeMap
+
+on:
+  pull_request:
+    paths:
+      - "**/docker-compose*.yml"
+      - "**/compose*.yml"
+      - "examples/*.yml"
+  workflow_dispatch:
+
+jobs:
+  exposure-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build ExposeMap
+        run: npm run build
+
+      - name: Generate Markdown report
+        run: node dist/cli.js scan examples/risky-compose.yml --format markdown --fail-on none
+
+      - name: Generate JSON report
+        run: node dist/cli.js scan examples/risky-compose.yml --format json --fail-on none > exposemap-report.json
+
+      - name: Enforce high-severity threshold
+        # This intentionally fails for examples/risky-compose.yml.
+        # Replace the path with your own Compose file in real CI.
+        run: node dist/cli.js scan examples/risky-compose.yml --format json --fail-on high
+
+      - name: Upload JSON report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exposemap-report
+          path: exposemap-report.json

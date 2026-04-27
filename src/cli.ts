@@ -1,34 +1,62 @@
 #!/usr/bin/env node
-import { Command } from "commander";
-import { scanComposeFileToMarkdown } from "./index.js";
+import { Command, CommanderError } from "commander";
+import { getExitCodeForReport, parseFailOnThreshold } from "./failOn.js";
+import { scanComposeFile } from "./index.js";
+import { renderJsonReport } from "./report/json.js";
+import { renderMarkdownReport } from "./report/markdown.js";
+import { getToolVersion } from "./version.js";
 
 const program = new Command();
+const supportedFormats = new Set(["markdown", "json"]);
 
 program
   .name("exposemap")
   .description("Open-source exposure mapper for self-hosted Docker Compose services")
-  .version("0.1.0");
+  .version(getToolVersion())
+  .exitOverride();
 
 program
   .command("scan")
   .argument("<compose-file>", "Path to docker-compose.yml")
-  .option("--format <format>", "Report format: markdown", "markdown")
+  .option("--format <format>", "Report format: markdown or json", "markdown")
+  .option("--fail-on <severity>", "Exit 1 on findings at or above severity: high, medium, low, none", "none")
   .description("Scan a Docker Compose file and print an exposure report")
-  .action(async (composeFile: string, options: { format: string }) => {
-    if (options.format !== "markdown") {
-      console.error(`Unsupported format: ${options.format}. The MVP currently supports markdown only.`);
-      process.exitCode = 1;
+  .action(async (composeFile: string, options: { format: string; failOn: string }) => {
+    const format = options.format.toLowerCase();
+    const failOn = parseFailOnThreshold(options.failOn.toLowerCase());
+
+    if (!supportedFormats.has(format)) {
+      console.error(`Unsupported format: ${options.format}. Supported formats: markdown, json.`);
+      process.exitCode = 2;
+      return;
+    }
+
+    if (!failOn) {
+      console.error(`Unsupported --fail-on value: ${options.failOn}. Supported values: high, medium, low, none.`);
+      process.exitCode = 2;
       return;
     }
 
     try {
-      const report = await scanComposeFileToMarkdown(composeFile);
-      process.stdout.write(report);
+      const report = await scanComposeFile(composeFile);
+      const output = format === "json" ? renderJsonReport(report) : renderMarkdownReport(report);
+      process.stdout.write(output);
+      process.exitCode = getExitCodeForReport(report, failOn);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`ExposeMap failed: ${message}`);
-      process.exitCode = 1;
+      process.exitCode = 2;
     }
   });
 
-program.parseAsync();
+try {
+  await program.parseAsync();
+} catch (error) {
+  if (error instanceof CommanderError) {
+    process.exitCode = error.exitCode === 0 ? 0 : 2;
+  } else {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`ExposeMap failed: ${message}`);
+    process.exitCode = 2;
+  }
+}

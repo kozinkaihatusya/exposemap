@@ -2,7 +2,7 @@
 
 Open-source exposure mapper for self-hosted Docker Compose services.
 
-ExposeMap scans `docker-compose.yml` files and produces a local Markdown report showing which services appear to be internal, localhost-only, directly exposed, reverse-proxy exposed, or unknown.
+ExposeMap scans `docker-compose.yml` files and produces local Markdown or JSON reports showing which services appear to be internal, localhost-only, directly exposed, reverse-proxy exposed, or unknown.
 
 It is built for self-hosters, homelab users, small teams, and developers running Compose stacks on VPS, NAS, home servers, Tailscale, WireGuard, reverse proxies, or public cloud servers.
 
@@ -31,6 +31,7 @@ ExposeMap helps make that first-pass map visible from the Compose configuration 
 - Traefik routing labels and obvious reverse proxy hints
 - Risky directly exposed database, cache, search, and admin ports
 - A Mermaid diagram of likely exposure paths
+- Markdown and JSON reports for local review or CI usage
 
 ## Who It Is For
 
@@ -53,12 +54,90 @@ When installed as a package, the CLI command is:
 exposemap scan ./docker-compose.yml --format markdown
 ```
 
+Markdown remains the default output:
+
+```bash
+exposemap scan ./docker-compose.yml
+```
+
+## JSON Output
+
+Use JSON when you want CI-friendly structured output:
+
+```bash
+exposemap scan ./docker-compose.yml --format json
+```
+
+The JSON report includes tool metadata, scanned file path, generated timestamp, summary counts, services, exposure map entries, findings, and the Mermaid diagram string.
+
+## Fail-on Thresholds
+
+Use `--fail-on` to make ExposeMap return exit code `1` when findings at or above a chosen severity are present:
+
+```bash
+exposemap scan ./docker-compose.yml --fail-on high
+exposemap scan ./docker-compose.yml --format json --fail-on medium
+```
+
+Supported values:
+
+- `none` - always exit `0` unless CLI usage or parsing fails
+- `high` - exit `1` if any high finding exists
+- `medium` - exit `1` if any medium or high finding exists
+- `low` - exit `1` if any low, medium, or high finding exists
+
+The default is `none` for backward compatibility.
+
+## Exit Codes
+
+- `0` - scan completed and the `--fail-on` threshold was not violated
+- `1` - scan completed and the `--fail-on` threshold was violated
+- `2` - invalid CLI usage, unsupported options, missing files, or Compose parsing errors
+
 ## Run With Docker
 
 ```bash
 docker build -t exposemap .
 docker run --rm -v $(pwd):/scan exposemap scan /scan/docker-compose.yml --format markdown
 ```
+
+Docker with JSON and CI threshold:
+
+```bash
+docker run --rm -v $(pwd):/scan exposemap scan /scan/docker-compose.yml --format json --fail-on high
+```
+
+## CI Usage
+
+ExposeMap can run in CI as a lightweight Compose-based exposure review step. It runs locally in the job, does not send `docker-compose.yml` files or reports anywhere, and does not perform real network scans.
+
+See [docs/ci-usage.md](docs/ci-usage.md) for local, Docker, JSON, and `--fail-on` examples.
+
+Example GitHub Actions workflow:
+
+```yaml
+name: ExposeMap
+
+on:
+  pull_request:
+    paths:
+      - "**/docker-compose*.yml"
+      - "**/compose*.yml"
+
+jobs:
+  exposemap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      - run: node dist/cli.js scan examples/risky-compose.yml --format json --fail-on high
+```
+
+The full example is available at [docs/github-actions-example.yml](docs/github-actions-example.yml). The example uses `examples/risky-compose.yml`, so the `--fail-on high` step is expected to fail; replace the path with your own Compose file in real CI.
 
 ## Example Report
 
@@ -100,11 +179,11 @@ graph TD
 
 ## Current Limitations
 
-- No real network scanning in the MVP
-- No Kubernetes support in the MVP
-- No Cloudflare Tunnel API integration in the MVP
-- No Tailscale API integration in the MVP
-- No hosted dashboard in the MVP
+- No real network scanning
+- No Kubernetes support
+- No Cloudflare Tunnel API integration
+- No Tailscale API integration
+- No hosted dashboard
 - Findings are heuristic checks based on Docker Compose configuration
 - Reverse proxy, firewall, VPN, DNS, cloud security group, and host-level rules can change real exposure
 
@@ -112,9 +191,7 @@ ExposeMap does not prove real internet exposure. It does not replace a full secu
 
 ## Roadmap
 
-- JSON report output
 - HTML report output
-- GitHub Actions integration
 - Better reverse proxy label support
 - Caddy config support
 - Nginx Proxy Manager support
