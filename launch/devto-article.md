@@ -102,4 +102,10 @@ It runs locally, does not modify Compose files, does not connect to containers, 
 
 That last point matters: ExposeMap is not a full security audit and does not prove internet exposure. It is a lightweight configuration review tool based on Compose heuristics.
 
+## What might come next
+
+The CLI is free and open source. Longer term, I am collecting interest in a hosted SelfHostGuard dashboard for scheduled exposure checks, scan history, exposure diffs, and alerts when new services appear exposed.
+
+That would still be separate from real external exposure testing. The current tool remains local, read-only, and Compose-based.
+
 GitHub: https://github.com/kozinkaihatusya/exposemap

@@ -210,9 +210,28 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR.
 
 For now, GitHub issues and discussions are the best place to share examples, edge cases, and ideas. Please do not paste private Compose files, secrets, credentials, or sensitive infrastructure details into public issues.
 
-## Hosted Version / Support Note
+## Hosted Dashboard / Paid Support
 
-Hosted dashboards, scheduled exposure checks, alerts, and setup reviews may come later. If you are interested, open an issue or contact the maintainer.
+ExposeMap is free and open source.
+
+A hosted SelfHostGuard Cloud dashboard may come later for teams that want:
+
+- scheduled exposure checks
+- scan history
+- exposure diffs over time
+- alerts when new services appear exposed
+- GitHub Actions integration
+- Slack / Discord alerts
+- multi-stack monitoring
+- team reports
+
+This hosted dashboard does not exist yet, and ExposeMap still does not prove real internet exposure. Real external exposure testing, firewall review, DNS review, and infrastructure review remain separate work.
+
+More context is in [docs/paid-support.md](docs/paid-support.md).
+
+If you want early access, open an [Early Access Request](https://github.com/kozinkaihatusya/exposemap/issues/new?template=early_access_request.md).
+
+If you need help reviewing your self-hosted exposure, reverse proxy, or Tailscale setup, open a [Setup Review Request](https://github.com/kozinkaihatusya/exposemap/issues/new?template=setup_review_request.md).
 
 ## License
 
