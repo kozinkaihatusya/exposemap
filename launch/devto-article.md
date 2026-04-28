@@ -1,6 +1,6 @@
 # How to see what your self-hosted Docker Compose stack exposes
 
-GitHub link: https://github.com/kozinkaihatusya/exposemap
+GitHub link: https://github.com/kaibuild/exposemap
 
 ## Why exposure is hard to reason about in self-hosted stacks
 
@@ -108,4 +108,4 @@ The CLI is free and open source. Longer term, I am collecting interest in a host
 
 That would still be separate from real external exposure testing. The current tool remains local, read-only, and Compose-based.
 
-GitHub: https://github.com/kozinkaihatusya/exposemap
+GitHub: https://github.com/kaibuild/exposemap

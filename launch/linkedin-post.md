@@ -6,6 +6,6 @@ The goal is intentionally modest: make Compose exposure easier to reason about b
 
 ExposeMap runs locally, does not connect to containers, does not modify Compose files, does not send reports anywhere, and does not perform real network scans.
 
-GitHub: https://github.com/kozinkaihatusya/exposemap
+GitHub: https://github.com/kaibuild/exposemap
 
 Feedback and sanitized edge cases are welcome.

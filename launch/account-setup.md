@@ -2,7 +2,7 @@
 
 Prepare accounts before launch week and send all traffic to the GitHub repo:
 
-https://github.com/kozinkaihatusya/exposemap
+https://github.com/kaibuild/exposemap
 
 ## Hacker News
 

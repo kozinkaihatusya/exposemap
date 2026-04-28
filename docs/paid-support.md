@@ -36,5 +36,5 @@ Enterprise or self-hosting support may be considered later for teams that want h
 
 No fixed pricing is available yet, and support is not guaranteed. For now, use the issue templates to share interest:
 
-- [Early Access Request](https://github.com/kozinkaihatusya/exposemap/issues/new?template=early_access_request.md)
-- [Setup Review Request](https://github.com/kozinkaihatusya/exposemap/issues/new?template=setup_review_request.md)
+- [Early Access Request](https://github.com/kaibuild/exposemap/issues/new?template=early_access_request.md)
+- [Setup Review Request](https://github.com/kaibuild/exposemap/issues/new?template=setup_review_request.md)

@@ -4,4 +4,4 @@ It scans docker-compose.yml and maps services as internal, localhost-only, direc
 
 Markdown report + Mermaid diagram. Runs locally. No real network scans.
 
-https://github.com/kozinkaihatusya/exposemap
+https://github.com/kaibuild/exposemap

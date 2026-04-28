@@ -229,9 +229,9 @@ This hosted dashboard does not exist yet, and ExposeMap still does not prove rea
 
 More context is in [docs/paid-support.md](docs/paid-support.md).
 
-If you want early access, open an [Early Access Request](https://github.com/kozinkaihatusya/exposemap/issues/new?template=early_access_request.md).
+If you want early access, open an [Early Access Request](https://github.com/kaibuild/exposemap/issues/new?template=early_access_request.md).
 
-If you need help reviewing your self-hosted exposure, reverse proxy, or Tailscale setup, open a [Setup Review Request](https://github.com/kozinkaihatusya/exposemap/issues/new?template=setup_review_request.md).
+If you need help reviewing your self-hosted exposure, reverse proxy, or Tailscale setup, open a [Setup Review Request](https://github.com/kaibuild/exposemap/issues/new?template=setup_review_request.md).
 
 ## License
 

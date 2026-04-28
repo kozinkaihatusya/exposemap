@@ -1,6 +1,6 @@
 # Show HN: ExposeMap - open-source exposure mapper for Docker Compose services
 
-GitHub: https://github.com/kozinkaihatusya/exposemap
+GitHub: https://github.com/kaibuild/exposemap
 
 I built ExposeMap, a small open-source CLI for self-hosters who run services with Docker Compose.
 

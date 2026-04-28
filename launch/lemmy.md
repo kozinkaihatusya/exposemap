@@ -1,6 +1,6 @@
 # I built ExposeMap, an open-source exposure mapper for Docker Compose services
 
-GitHub: https://github.com/kozinkaihatusya/exposemap
+GitHub: https://github.com/kaibuild/exposemap
 
 ExposeMap is a small local CLI for self-hosted Docker Compose stacks. It scans `docker-compose.yml` and classifies services as internal, localhost-only, directly exposed, reverse-proxy exposed, or unknown.
 

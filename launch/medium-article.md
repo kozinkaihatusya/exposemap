@@ -54,4 +54,4 @@ It scans `docker-compose.yml` and classifies services as internal, localhost-onl
 
 ExposeMap runs locally. It does not modify Compose files, connect to containers, send reports anywhere, or perform real network scans.
 
-GitHub: https://github.com/kozinkaihatusya/exposemap
+GitHub: https://github.com/kaibuild/exposemap

@@ -1,6 +1,6 @@
 # I built an open-source exposure mapper for self-hosted Docker Compose services
 
-GitHub: https://github.com/kozinkaihatusya/exposemap
+GitHub: https://github.com/kaibuild/exposemap
 
 I built ExposeMap because I kept seeing the same problem in self-hosted stacks: after a few Compose files, reverse proxies, admin tools, databases, VPNs, and experiments, it becomes hard to quickly answer what is exposed and how.
 
