@@ -166,6 +166,29 @@ See [docs/ci-usage.md](docs/ci-usage.md) for local, Docker, JSON, and `--fail-on
 
 See [examples/report.md](examples/report.md) for a generated sample.
 
+## Sanitized Reverse Proxy Example
+
+If your stack uses a reverse proxy, keep the example public and minimal:
+
+```yaml
+services:
+  proxy:
+    image: caddy:alpine
+    ports:
+      - "443:443"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`app.example.com`)"
+  app:
+    image: ghcr.io/example/app:latest
+    expose:
+      - "8080"
+    depends_on:
+      - proxy
+```
+
+ExposeMap should report the proxy hints, not claim internet reachability from labels alone. If a public issue needs help, trim the file to the proxy and target service only.
+
 ## FAQ
 
 ### Does ExposeMap prove that a service is reachable from the internet?
